@@ -279,3 +279,36 @@ export interface Content extends Omit<Headline, 'classes'>, Widget {
 }
 
 export interface Contact extends Omit<Headline, 'classes'>, Form, Widget {}
+
+/** Represents the target of a navigation link */
+export type NavHref =
+  | string
+  | {
+      // Type indicating special link handling (home, blog, asset) or standard types (page, post, category, tag)
+      type: 'home' | 'blog' | 'asset' | 'page' | 'post' | 'category' | 'tag' | string;
+      // URL slug or path, primarily used when type is not just a string URL
+      url?: string;
+    };
+
+/** Represents a single navigation item, which might have nested links */
+export interface NavItem {
+  text?: string; // Display text
+  href?: NavHref; // Link target (string or object)
+  ariaLabel?: string; // Accessibility label
+  icon?: string; // Icon name
+  links?: NavItem[]; // Nested links for dropdowns/submenus
+  [key: string]: unknown; // Allow other properties like 'title' in footerData
+}
+
+/** Represents the overall navigation data structure (like headerData/footerData) */
+export interface NavigationData {
+  links?: NavItem[];
+  actions?: CallToAction[]; // Assuming CallToAction is defined elsewhere for header actions
+  secondaryLinks?: NavItem[]; // For footer
+  socialLinks?: NavItem[]; // For footer
+  footNote?: string; // For footer
+  [key: string]: unknown; // Allow other top-level keys
+}
+
+// Ensure CallToAction is defined if not already present
+// export interface CallToAction { text?: string; href?: string; ... }
