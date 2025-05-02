@@ -5,12 +5,28 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import configBuilder, { type Config } from './utils/configBuilder';
 import loadConfig from './utils/loadConfig';
 
+/**
+ * Astrowind Integration for Astro
+ *
+ * Loads a YAML-based theme configuration, injects it as a virtual Vite module,
+ * watches the config file for HMR, and appends/upserts sitemap URLs into robots.txt on build.
+ *
+ * @param options.config - relative path or object for theme config (default: 'src/config.yaml')
+ * @returns configured AstroIntegration
+ */
 export default ({ config: _themeConfig = 'src/config.yaml' } = {}): AstroIntegration => {
   let cfg: AstroConfig;
   return {
     name: 'astrowind-integration',
 
     hooks: {
+      /**
+       * Hook: astro:config:setup
+       * - Loads and parses the theme YAML
+       * - Constructs a virtual Vite plugin emitting SITE, I18N, METADATA, etc.
+       * - Updates Astro config (site, base, trailingSlash, Vite plugins)
+       * - Registers the config file for HMR
+       */
       'astro:config:setup': async ({
         // command,
         config,
@@ -68,10 +84,19 @@ export default ({ config: _themeConfig = 'src/config.yaml' } = {}): AstroIntegra
           buildLogger.info(`Astrowind config has been loaded.`);
         }
       },
+      /**
+       * Hook: astro:config:done
+       * - Captures the final resolved AstroConfig for use in subsequent hooks
+       */
       'astro:config:done': async ({ config }) => {
         cfg = config;
       },
 
+      /**
+       * Hook: astro:build:done
+       * - On build completion, reads or creates robots.txt in public/outDir
+       * - Appends or replaces the Sitemap entry pointing to sitemap-index.xml
+       */
       'astro:build:done': async ({ logger }) => {
         const buildLogger = logger.fork('astrowind');
         buildLogger.info('Updating `robots.txt` with `sitemap-index.xml` ...');
