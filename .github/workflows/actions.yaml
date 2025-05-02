@@ -9,12 +9,19 @@ on:
     branches:
       - '**'  # Run CI on pushes to any branch
 
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lint:
+  lint-format:
     name: Lint & Format Check
     runs-on: ubuntu-latest
     steps:
@@ -34,9 +41,9 @@ jobs:
       - run: npm run check:eslint
       - run: npm run check:prettier
 
-  build:
+  build-matrix:
     name: Build Project (Node ${{ matrix.node-version }})
-    needs: [lint]
+    needs: [lint-format]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -63,9 +70,9 @@ jobs:
       - run: npm run build
       # - run: npm test
 
-  check:
+  astro-check:
     name: Astro Check (Types)
-    needs: [lint]
+    needs: [lint-format]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
