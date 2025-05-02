@@ -35,6 +35,8 @@ jobs:
       - run: npm ci
       - run: npm run check:eslint
       - run: npm run check:prettier
+      - name: Security Audit
+        run: npm run audit
 
   build-matrix:
     name: Build Project (Node ${{ matrix.node-version }})
@@ -58,7 +60,7 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npm run build
-      # - run: npm test
+      - run: npm test
 
   astro-check:
     name: Astro Check (Types)

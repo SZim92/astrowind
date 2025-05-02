@@ -7,6 +7,7 @@
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >= 21.0.0"
   },
+  "packageManager": "pnpm@11.3.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -19,7 +20,9 @@
     "check:prettier": "prettier --check .",
     "fix": "npm run fix:eslint && npm run fix:prettier",
     "fix:eslint": "eslint --fix .",
-    "fix:prettier": "prettier -w ."
+    "fix:prettier": "prettier -w .",
+    "audit": "npm audit --audit-level=moderate",
+    "test": "npm run check && npm run audit"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.11",
