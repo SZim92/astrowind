@@ -10,9 +10,13 @@
  * - applyGetPermalinks: Recursively resolve href properties in navigation data.
  *
  * @module src/utils/permalinks
+ * @category Utilities/Permalinks
+ * @see NavHref - Type for navigation href descriptors
+ * @see NavItem - Schema for navigation items
  */
 
 // Import only the types actually used
+import type { NavHref } from '../types';
 import slugify from 'limax';
 import { SITE, APP_BLOG } from 'astrowind:config';
 import { trim } from '~/utils/utils';
@@ -20,6 +24,8 @@ import { trim } from '~/utils/utils';
 /**
  * Remove leading and trailing slashes from a string.
  *
+ * @category Utilities/Permalinks
+ * @public
  * @param s - The string to trim slashes from.
  * @returns The string without leading or trailing slashes.
  */
@@ -48,6 +54,8 @@ const BASE_PATHNAME = SITE.base || '/';
 /**
  * Normalize and slugify a text string to create URL-safe path segments.
  *
+ * @category Utilities/Permalinks
+ * @public
  * @param text - The text to clean and slugify.
  * @returns A slugified string without leading/trailing slashes.
  */
@@ -74,6 +82,9 @@ export const POST_PERMALINK_PATTERN = trimSlash(APP_BLOG?.post?.permalink || `${
 /**
  * Generate the canonical URL for a given path.
  *
+ * @category Utilities/Permalinks
+ * @public
+ * @remarks Adjusts trailing slash based on site configuration.
  * @param path - The relative URL path or full URL.
  * @returns A canonical URL string or URL object with correct trailing slash.
  * @example
@@ -92,6 +103,8 @@ export const getCanonical = (path = ''): string | URL => {
 /**
  * Generate a permalink for various content types.
  *
+ * @category Utilities/Permalinks
+ * @public
  * @param slug - The path segment or URL.
  * @param type - The type of content ('page', 'home', 'blog', 'asset', 'category', 'tag', 'post').
  * @returns A formatted permalink string.
@@ -148,6 +161,8 @@ export const getPermalink = (slug = '', type = 'page'): string => {
 /**
  * Shortcut to generate the home page permalink.
  *
+ * @category Utilities/Permalinks
+ * @public
  * @returns The home page URL.
  */
 export const getHomePermalink = (): string => getPermalink('/');
@@ -155,6 +170,8 @@ export const getHomePermalink = (): string => getPermalink('/');
 /**
  * Shortcut to generate the blog listing page permalink.
  *
+ * @category Utilities/Permalinks
+ * @public
  * @returns The blog base URL.
  */
 export const getBlogPermalink = (): string => getPermalink(BLOG_BASE);
@@ -162,6 +179,8 @@ export const getBlogPermalink = (): string => getPermalink(BLOG_BASE);
 /**
  * Generate a permalink for static assets relative to the base path.
  *
+ * @category Utilities/Permalinks
+ * @public
  * @param path - The asset path.
  * @returns The asset URL.
  */
@@ -184,65 +203,56 @@ const definitivePermalink = (permalink: string): string => createPath(BASE_PATHN
 /**
  * Recursively resolve 'href' properties in a data structure to full permalinks.
  *
- * Traverses arrays and objects, replacing 'href' values with generated URLs.
- *
+ * @category Utilities/Permalinks
+ * @public
+ * @remarks Deeply traverses nested arrays and objects, replacing 'href' keys.
  * @param data - Navigation structure containing href keys.
  * @returns A new data structure with resolved permalinks.
+ * @see NavHref
+ * @see NavItem
  * @example
  * const nav = [{ text: 'Home', href: { type: 'home' } }];
  * applyGetPermalinks(nav); // [{ text: 'Home', href: '/' }]
  */
 export const applyGetPermalinks = (data: unknown): unknown => {
   if (Array.isArray(data)) {
-    // If it's an array, map over items and apply recursively
     return data.map((item) => applyGetPermalinks(item));
   } else if (typeof data === 'object' && data !== null) {
-    // If it's an object, create a new object for results
     const result: { [key: string]: unknown } = {};
 
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        // Get the value associated with the key
         const value = (data as Record<string, unknown>)[key];
 
         if (key === 'href' && value !== undefined && value !== null) {
-          // **Handle the 'href' property specifically**
           if (typeof value === 'string') {
-            // If href value is a simple string URL/slug
             result[key] = getPermalink(value);
           } else if (typeof value === 'object' && 'type' in value) {
-            // If href value is an object with a 'type' property
-            const hrefObj = value as { type: string; url?: string; href?: string }; // More specific type assertion
+            const hrefObj = value as NavHref;
 
-            if (hrefObj.type === 'home') {
+            if (typeof hrefObj === 'string') {
+              result[key] = getPermalink(hrefObj);
+            } else if (hrefObj.type === 'home') {
               result[key] = getHomePermalink();
             } else if (hrefObj.type === 'blog') {
               result[key] = getBlogPermalink();
             } else if (hrefObj.type === 'asset' && typeof hrefObj.url === 'string') {
               result[key] = getAsset(hrefObj.url);
             } else if (typeof hrefObj.url === 'string') {
-              // Handle page, post, category, tag types using url as slug
               result[key] = getPermalink(hrefObj.url, hrefObj.type);
-            } else if (typeof hrefObj.href === 'string') {
-              // Handle potentially nested { text: '...', href: '/some/path' }
-              result[key] = getPermalink(hrefObj.href, hrefObj.type || 'page');
             } else {
-              // Pass through unrecognized href object structures
               result[key] = value;
             }
           } else {
-            // Pass through href values that are objects without 'type' or other unexpected types
             result[key] = value;
           }
         } else {
-          // For keys other than 'href', or if href is null/undefined, apply recursively
           result[key] = applyGetPermalinks(value);
         }
       }
     }
-    return result; // Return the processed object
+    return result;
   }
 
-  // Return primitives or non-object/non-array types as is
   return data;
 };
