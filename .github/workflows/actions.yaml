@@ -7,7 +7,7 @@ on:
       - main
   push:
     branches:
-      - main
+      - '**'  # Run CI on pushes to any branch
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
