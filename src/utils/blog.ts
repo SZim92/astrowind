@@ -1,3 +1,15 @@
+/**
+ * src/utils/blog.ts
+ *
+ * Blog utilities for Astro:
+ * - Generating permalinks based on date and slug patterns
+ * - Normalizing content entries into Post objects
+ * - Fetching, caching, and filtering posts
+ * - Generating static paths for paginated blog lists, posts, categories, and tags
+ * - Computing related posts by category and tag relevance
+ *
+ * @module src/utils/blog
+ */
 import type { PaginateFunction } from 'astro';
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
@@ -5,6 +17,16 @@ import type { Post, Taxonomy } from '~/types';
 import { APP_BLOG } from 'astrowind:config';
 import { cleanSlug, trimSlash, BLOG_BASE, POST_PERMALINK_PATTERN, CATEGORY_BASE, TAG_BASE } from './permalinks';
 
+/**
+ * generatePermalink
+ *
+ * Constructs a URL path based on the given pattern and publish date components.
+ * @param params.id - unique post identifier
+ * @param params.slug - URL-safe slug for the post
+ * @param params.publishDate - Date when the post was published
+ * @param params.category - optional category slug
+ * @returns formatted permalink string
+ */
 const generatePermalink = async ({
   id,
   slug,
@@ -40,6 +62,14 @@ const generatePermalink = async ({
     .join('/');
 };
 
+/**
+ * getNormalizedPost
+ *
+ * Transforms an Astro CollectionEntry into a fully normalized Post object.
+ * Renders content, processes frontmatter, and computes metadata like readingTime.
+ * @param post - raw Astro content entry for 'post'
+ * @returns Promise resolving to a Post object
+ */
 const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> => {
   const { id, data } = post;
   const { Content, remarkPluginFrontmatter } = await render(post);
@@ -100,6 +130,12 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
   };
 };
 
+/**
+ * load
+ *
+ * Fetches, normalizes, and sorts all blog posts, filtering out drafts.
+ * @returns Promise resolving to an array of Post objects
+ */
 const load = async function (): Promise<Array<Post>> {
   const posts = await getCollection('post');
   const normalizedPosts = posts.map(async (post) => await getNormalizedPost(post));
@@ -128,7 +164,12 @@ export const blogTagRobots = APP_BLOG.tag.robots;
 
 export const blogPostsPerPage = APP_BLOG?.postsPerPage;
 
-/** */
+/**
+ * fetchPosts
+ *
+ * Returns cached posts or loads them if not already fetched.
+ * @returns Promise resolving to cached Array<Post>
+ */
 export const fetchPosts = async (): Promise<Array<Post>> => {
   if (!_posts) {
     _posts = await load();
@@ -137,7 +178,13 @@ export const fetchPosts = async (): Promise<Array<Post>> => {
   return _posts;
 };
 
-/** */
+/**
+ * findPostsBySlugs
+ *
+ * Filters posts by matching slugs.
+ * @param slugs - array of post slug strings
+ * @returns Promise resolving to an array of matching Posts
+ */
 export const findPostsBySlugs = async (slugs: Array<string>): Promise<Array<Post>> => {
   if (!Array.isArray(slugs)) return [];
 
@@ -151,7 +198,13 @@ export const findPostsBySlugs = async (slugs: Array<string>): Promise<Array<Post
   }, []);
 };
 
-/** */
+/**
+ * findPostsByIds
+ *
+ * Filters posts by matching IDs.
+ * @param ids - array of post ID strings
+ * @returns Promise resolving to an array of matching Posts
+ */
 export const findPostsByIds = async (ids: Array<string>): Promise<Array<Post>> => {
   if (!Array.isArray(ids)) return [];
 
@@ -165,7 +218,13 @@ export const findPostsByIds = async (ids: Array<string>): Promise<Array<Post>> =
   }, []);
 };
 
-/** */
+/**
+ * findLatestPosts
+ *
+ * Returns the most recent posts up to the specified count.
+ * @param options.count - maximum number of posts to return (default 4)
+ * @returns Promise resolving to an array of latest Posts
+ */
 export const findLatestPosts = async ({ count }: { count?: number }): Promise<Array<Post>> => {
   const _count = count || 4;
   const posts = await fetchPosts();
@@ -173,7 +232,13 @@ export const findLatestPosts = async ({ count }: { count?: number }): Promise<Ar
   return posts ? posts.slice(0, _count) : [];
 };
 
-/** */
+/**
+ * getStaticPathsBlogList
+ *
+ * Generates paginated static paths for the blog list route.
+ * @param paginate - Astro pagination function
+ * @returns array of path parameters for paginated blog lists
+ */
 export const getStaticPathsBlogList = async ({ paginate }: { paginate: PaginateFunction }) => {
   if (!isBlogEnabled || !isBlogListRouteEnabled) return [];
   return paginate(await fetchPosts(), {
@@ -182,7 +247,12 @@ export const getStaticPathsBlogList = async ({ paginate }: { paginate: PaginateF
   });
 };
 
-/** */
+/**
+ * getStaticPathsBlogPost
+ *
+ * Generates static paths for individual blog post pages.
+ * @returns array of path parameters including post props
+ */
 export const getStaticPathsBlogPost = async () => {
   if (!isBlogEnabled || !isBlogPostRouteEnabled) return [];
   return (await fetchPosts()).flatMap((post) => ({
@@ -193,7 +263,13 @@ export const getStaticPathsBlogPost = async () => {
   }));
 };
 
-/** */
+/**
+ * getStaticPathsBlogCategory
+ *
+ * Generates paginated static paths for blog categories.
+ * @param paginate - Astro pagination function
+ * @returns array of path parameters with category props
+ */
 export const getStaticPathsBlogCategory = async ({ paginate }: { paginate: PaginateFunction }) => {
   if (!isBlogEnabled || !isBlogCategoryRouteEnabled) return [];
 
@@ -217,7 +293,13 @@ export const getStaticPathsBlogCategory = async ({ paginate }: { paginate: Pagin
   );
 };
 
-/** */
+/**
+ * getStaticPathsBlogTag
+ *
+ * Generates paginated static paths for blog tags.
+ * @param paginate - Astro pagination function
+ * @returns array of path parameters with tag props
+ */
 export const getStaticPathsBlogTag = async ({ paginate }: { paginate: PaginateFunction }) => {
   if (!isBlogEnabled || !isBlogTagRouteEnabled) return [];
 
@@ -243,7 +325,14 @@ export const getStaticPathsBlogTag = async ({ paginate }: { paginate: PaginateFu
   );
 };
 
-/** */
+/**
+ * getRelatedPosts
+ *
+ * Computes related posts based on shared categories and tags.
+ * @param originalPost - the reference Post to find related items for
+ * @param maxResults - maximum number of related posts (default 4)
+ * @returns Promise resolving to an array of related Posts
+ */
 export async function getRelatedPosts(originalPost: Post, maxResults: number = 4): Promise<Post[]> {
   const allPosts = await fetchPosts();
   const originalTagsSet = new Set(originalPost.tags ? originalPost.tags.map((tag) => tag.slug) : []);
