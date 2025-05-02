@@ -26,17 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js
+      - name: Setup Node.js (v22 LTS)
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npm run check:eslint
       - run: npm run check:prettier
@@ -49,23 +44,18 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          - 18   # Node 18 LTS (Maintenance until 2025-04-30) EOL 2025-04-30
-          - 20   # Node 20 LTS (Maintenance until 2026-04-30) EOL 2026-04-30
+          - 18   # Node 18 LTS (⚠️ Node 18 is EOL 2025-04-30)
+          - 20   # Node 20 LTS (Maintenance until 2026-04-30)
           - 22   # Node 22 LTS (Active until 2025-04-30; Maintenance until 2027-04-30)
           - node # Tracks latest Node release (e.g. 23.x now, next will be 24+)
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ matrix.node-version }}-
-      - name: Use Node.js v${{ matrix.node-version }}
+      - name: Setup Node.js (${matrix.node-version})
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npm run build
       # - run: npm test
@@ -76,10 +66,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 22 # Node 22 LTS (Active)
+      - name: Setup Node.js (v22 LTS)
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npm run check:astro
