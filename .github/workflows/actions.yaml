@@ -1,4 +1,4 @@
-name: GitHub Actions
+name: CI Checks and Build
 
 on:
   workflow_dispatch:
@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   lint:
+    name: Lint & Format Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +35,7 @@ jobs:
       - run: npm run check:prettier
 
   build:
+    name: Build Project (Node ${{ matrix.node-version }})
     needs: [lint]
     runs-on: ubuntu-latest
     strategy:
@@ -62,6 +64,7 @@ jobs:
       # - run: npm test
 
   check:
+    name: Astro Check (Types)
     needs: [lint]
     runs-on: ubuntu-latest
     steps:
