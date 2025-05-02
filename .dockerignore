@@ -1,4 +1,32 @@
-dist/
+# Node modules and build artifacts
 node_modules/
-.vscode/
+dist/
+
+# Build cache and generated files
+.cache/
+.astro/
+
+# Environment variables
+.env
+.env.*
+
+# Version control
+.git/
 .github/
+
+# Editor directories and files
+.vscode/
+*.code-workspace
+
+# Docker files
+Dockerfile
+docker-compose.yml
+
+# Logs
+*.log
+npm-debug.log*
+
+# Tests & coverage
+coverage/
+src/**/__tests__/
+src/**/*.spec.ts
