@@ -30,6 +30,7 @@ export const trimSlash = (s: string) => trim(trim(s, '/'));
  *
  * @param params - Path segments to join.
  * @returns A URL path starting with '/', with optional trailing slash based on SITE.trailingSlash.
+ * @internal
  */
 const createPath = (...params: string[]) => {
   const paths = params
@@ -75,6 +76,8 @@ export const POST_PERMALINK_PATTERN = trimSlash(APP_BLOG?.post?.permalink || `${
  *
  * @param path - The relative URL path or full URL.
  * @returns A canonical URL string or URL object with correct trailing slash.
+ * @example
+ * getCanonical('/about'); // 'https://mysite.com/about/'
  */
 export const getCanonical = (path = ''): string | URL => {
   const url = String(new URL(path, SITE.site));
@@ -92,6 +95,13 @@ export const getCanonical = (path = ''): string | URL => {
  * @param slug - The path segment or URL.
  * @param type - The type of content ('page', 'home', 'blog', 'asset', 'category', 'tag', 'post').
  * @returns A formatted permalink string.
+ * @example
+ * // Page
+ * getPermalink('about', 'page'); // '/about/'
+ * // Home
+ * getPermalink('', 'home'); // '/'
+ * // Blog post
+ * getPermalink('new-post', 'post'); // '/new-post/'
  */
 export const getPermalink = (slug = '', type = 'page'): string => {
   let permalink: string;
@@ -167,6 +177,7 @@ export const getAsset = (path: string): string =>
  *
  * @param permalink - The raw permalink path.
  * @returns The permalink prefixed with the base path.
+ * @internal
  */
 const definitivePermalink = (permalink: string): string => createPath(BASE_PATHNAME, permalink);
 
@@ -177,6 +188,9 @@ const definitivePermalink = (permalink: string): string => createPath(BASE_PATHN
  *
  * @param data - Navigation structure containing href keys.
  * @returns A new data structure with resolved permalinks.
+ * @example
+ * const nav = [{ text: 'Home', href: { type: 'home' } }];
+ * applyGetPermalinks(nav); // [{ text: 'Home', href: '/' }]
  */
 export const applyGetPermalinks = (data: unknown): unknown => {
   if (Array.isArray(data)) {

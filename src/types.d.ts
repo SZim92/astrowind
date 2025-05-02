@@ -1,79 +1,95 @@
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import type { HTMLAttributes, ImageMetadata } from 'astro/types';
 
+/**
+ * Type definitions for blog content, taxonomies, metadata, and UI components/widgets.
+ * Provides structured schemas for Astro pages, navigation, and widgets.
+ *
+ * @module src/types.d.ts
+ * @remarks Types used across AstroWind for content, metadata, and UI props.
+ */
+
+// ─────────── Domain Models ───────────
+// Core content interfaces
+
+/**
+ * Data model for a blog post with content and metadata.
+ *
+ * @category Domain Models
+ */
 export interface Post {
-  /** A unique ID number that identifies a post. */
   id: string;
-
-  /** A post’s unique slug – part of the post’s URL based on its name, i.e. a post called “My Sample Page” has a slug “my-sample-page”. */
   slug: string;
-
-  /**  */
   permalink: string;
-
-  /**  */
   publishDate: Date;
-  /**  */
   updateDate?: Date;
-
-  /**  */
   title: string;
-  /** Optional summary of post content. */
   excerpt?: string;
-  /**  */
   image?: ImageMetadata | string;
-
-  /**  */
   category?: Taxonomy;
-  /**  */
   tags?: Taxonomy[];
-  /**  */
   author?: string;
-
-  /**  */
   metadata?: MetaData;
-
-  /**  */
   draft?: boolean;
-
-  /**  */
   Content?: AstroComponentFactory;
   content?: string;
-
-  /**  */
   readingTime?: number;
 }
 
+/**
+ * Taxonomy item schema for categories and tags.
+ *
+ * @category Domain Models
+ */
 export interface Taxonomy {
   slug: string;
   title: string;
 }
 
+// ─────────── SEO & Metadata Models ───────────
+// SEO, robots, OpenGraph, and Twitter metadata
+
+/**
+ * SEO and social sharing metadata for pages and posts.
+ *
+ * @category SEO & Metadata Models
+ */
 export interface MetaData {
   title?: string;
   ignoreTitleTemplate?: boolean;
-
   canonical?: string;
-
   robots?: MetaDataRobots;
-
   description?: string;
-
   openGraph?: MetaDataOpenGraph;
   twitter?: MetaDataTwitter;
 }
 
+/**
+ * Robots meta directives (index/follow).
+ *
+ * @category SEO & Metadata Models
+ */
 export interface MetaDataRobots {
   index?: boolean;
   follow?: boolean;
 }
 
+/**
+ * Image metadata for social sharing cards.
+ *
+ * @category SEO & Metadata Models
+ */
 export interface MetaDataImage {
   url: string;
   width?: number;
   height?: number;
 }
 
+/**
+ * Open Graph metadata for rich link previews.
+ *
+ * @category SEO & Metadata Models
+ */
 export interface MetaDataOpenGraph {
   url?: string;
   siteName?: string;
@@ -82,56 +98,59 @@ export interface MetaDataOpenGraph {
   type?: string;
 }
 
+/**
+ * Twitter card metadata for social previews.
+ *
+ * @category SEO & Metadata Models
+ */
 export interface MetaDataTwitter {
   handle?: string;
   site?: string;
   cardType?: string;
 }
 
+// ─────────── Media Models ───────────
+// Image and video resource schemas
+
+/**
+ * Represents an image resource with source URL and alt text.
+ *
+ * @category Media Models
+ */
 export interface Image {
   src: string;
   alt?: string;
 }
 
+/**
+ * Represents a video resource with optional media type.
+ *
+ * @category Media Models
+ */
 export interface Video {
   src: string;
   type?: string;
 }
 
-export interface Widget {
-  id?: string;
-  isDark?: boolean;
-  bg?: string;
-  classes?: Record<string, string | Record<string, string>>;
-}
+// ─────────── Utility Models ───────────
+// Statistical and generic item schemas
 
-export interface Headline {
-  title?: string;
-  subtitle?: string;
-  tagline?: string;
-  classes?: Record<string, string>;
-}
-
-interface TeamMember {
-  name?: string;
-  job?: string;
-  image?: Image;
-  socials?: Array<Social>;
-  description?: string;
-  classes?: Record<string, string>;
-}
-
-interface Social {
-  icon?: string;
-  href?: string;
-}
-
+/**
+ * Statistical data schema.
+ *
+ * @category Utility Models
+ */
 export interface Stat {
   amount?: number | string;
   title?: string;
   icon?: string;
 }
 
+/**
+ * Item schema for grids and lists.
+ *
+ * @category Utility Models
+ */
 export interface Item {
   title?: string;
   description?: string;
@@ -141,26 +160,38 @@ export interface Item {
   image?: Image;
 }
 
-export interface Price {
+// ─────────── UI Component Props ───────────
+// Base widget, headline, and form elements
+
+/**
+ * Base properties for UI component props.
+ *
+ * @category UI Component Props
+ */
+export interface Widget {
+  id?: string;
+  isDark?: boolean;
+  bg?: string;
+  classes?: Record<string, string | Record<string, string>>;
+}
+
+/**
+ * Headline section schema.
+ *
+ * @category UI Component Props
+ */
+export interface Headline {
   title?: string;
   subtitle?: string;
-  description?: string;
-  price?: number | string;
-  period?: string;
-  items?: Array<Item>;
-  callToAction?: CallToAction;
-  hasRibbon?: boolean;
-  ribbonTitle?: string;
+  tagline?: string;
+  classes?: Record<string, string>;
 }
 
-export interface Testimonial {
-  title?: string;
-  testimonial?: string;
-  name?: string;
-  job?: string;
-  image?: string | unknown;
-}
-
+/**
+ * Form input field schema.
+ *
+ * @category UI Component Props
+ */
 export interface Input {
   type: HTMLInputTypeAttribute;
   name: string;
@@ -169,6 +200,11 @@ export interface Input {
   placeholder?: string;
 }
 
+/**
+ * Textarea field schema for forms.
+ *
+ * @category UI Component Props
+ */
 export interface Textarea {
   label?: string;
   name?: string;
@@ -176,11 +212,20 @@ export interface Textarea {
   rows?: number;
 }
 
+/**
+ * Legal disclaimer schema for forms.
+ *
+ * @category UI Component Props
+ */
 export interface Disclaimer {
   label?: string;
 }
 
-// COMPONENTS
+/**
+ * Call-to-action component props schema.
+ *
+ * @category UI Component Props
+ */
 export interface CallToAction extends Omit<HTMLAttributes<'a'>, 'slot'> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'link';
   text?: string;
@@ -189,6 +234,14 @@ export interface CallToAction extends Omit<HTMLAttributes<'a'>, 'slot'> {
   type?: 'button' | 'submit' | 'reset';
 }
 
+// ─────────── Layout Components ───────────
+// Grids, collapsibles, and form layouts
+
+/**
+ * Grid layout schema for items.
+ *
+ * @category Layout Components
+ */
 export interface ItemGrid {
   items?: Array<Item>;
   columns?: number;
@@ -196,6 +249,11 @@ export interface ItemGrid {
   classes?: Record<string, string>;
 }
 
+/**
+ * Collapsible section schema.
+ *
+ * @category Layout Components
+ */
 export interface Collapse {
   iconUp?: string;
   iconDown?: string;
@@ -204,6 +262,11 @@ export interface Collapse {
   classes?: Record<string, string>;
 }
 
+/**
+ * Form layout schema.
+ *
+ * @category Layout Components
+ */
 export interface Form {
   inputs?: Array<Input>;
   textarea?: Textarea;
@@ -212,35 +275,72 @@ export interface Form {
   description?: string;
 }
 
-// WIDGETS
+// ─────────── Section Component Props ───────────
+// Widgets for page sections like Hero, Pricing, Features, etc.
+
+/**
+ * Hero section schema.
+ *
+ * @category Section Component Props
+ */
 export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' | 'classes'> {
   content?: string;
   actions?: string | CallToAction[];
   image?: string | unknown;
 }
 
+/**
+ * Team section data.
+ *
+ * @category Section Component Props
+ */
 export interface Team extends Omit<Headline, 'classes'>, Widget {
   team?: Array<TeamMember>;
 }
 
+/**
+ * Statistics section data.
+ *
+ * @category Section Component Props
+ */
 export interface Stats extends Omit<Headline, 'classes'>, Widget {
   stats?: Array<Stat>;
 }
 
+/**
+ * Pricing section data.
+ *
+ * @category Section Component Props
+ */
 export interface Pricing extends Omit<Headline, 'classes'>, Widget {
   prices?: Array<Price>;
 }
 
+/**
+ * Testimonials section data.
+ *
+ * @category Section Component Props
+ */
 export interface Testimonials extends Omit<Headline, 'classes'>, Widget {
   testimonials?: Array<Testimonial>;
   callToAction?: CallToAction;
 }
 
+/**
+ * Brands section data.
+ *
+ * @category Section Component Props
+ */
 export interface Brands extends Omit<Headline, 'classes'>, Widget {
   icons?: Array<string>;
   images?: Array<Image>;
 }
 
+/**
+ * Features section data.
+ *
+ * @category Section Component Props
+ */
 export interface Features extends Omit<Headline, 'classes'>, Widget {
   image?: string | unknown;
   video?: Video;
@@ -254,6 +354,11 @@ export interface Features extends Omit<Headline, 'classes'>, Widget {
   isAfterContent?: boolean;
 }
 
+/**
+ * FAQ section data.
+ *
+ * @category Section Component Props
+ */
 export interface Faqs extends Omit<Headline, 'classes'>, Widget {
   iconUp?: string;
   iconDown?: string;
@@ -261,6 +366,11 @@ export interface Faqs extends Omit<Headline, 'classes'>, Widget {
   columns?: number;
 }
 
+/**
+ * Steps/process section data.
+ *
+ * @category Section Component Props
+ */
 export interface Steps extends Omit<Headline, 'classes'>, Widget {
   items?: Array<Item>;
   callToAction?: string | CallToAction;
@@ -268,6 +378,11 @@ export interface Steps extends Omit<Headline, 'classes'>, Widget {
   isReversed?: boolean;
 }
 
+/**
+ * Content block section data.
+ *
+ * @category Section Component Props
+ */
 export interface Content extends Omit<Headline, 'classes'>, Widget {
   content?: string;
   image?: string | unknown;
@@ -278,37 +393,68 @@ export interface Content extends Omit<Headline, 'classes'>, Widget {
   callToAction?: CallToAction;
 }
 
+/**
+ * Contact section data for forms.
+ *
+ * @category Section Component Props
+ */
 export interface Contact extends Omit<Headline, 'classes'>, Form, Widget {}
 
-/** Represents the target of a navigation link */
+// ─────────── Navigation Models ───────────
+// Navigation links and menus
+
+/**
+ * Link target descriptor union type for navigation.
+ *
+ * @category Navigation Models
+ */
 export type NavHref =
   | string
   | {
-      // Type indicating special link handling (home, blog, asset) or standard types (page, post, category, tag)
       type: 'home' | 'blog' | 'asset' | 'page' | 'post' | 'category' | 'tag' | string;
-      // URL slug or path, primarily used when type is not just a string URL
       url?: string;
     };
 
-/** Represents a single navigation item, which might have nested links */
+/**
+ * Navigation item schema for menus.
+ *
+ * @category Navigation Models
+ */
 export interface NavItem {
-  text?: string; // Display text
-  href?: NavHref; // Link target (string or object)
-  ariaLabel?: string; // Accessibility label
-  icon?: string; // Icon name
-  links?: NavItem[]; // Nested links for dropdowns/submenus
-  [key: string]: unknown; // Allow other properties like 'title' in footerData
+  text?: string;
+  href?: NavHref;
+  ariaLabel?: string;
+  icon?: string;
+  links?: NavItem[];
+  [key: string]: unknown;
 }
 
-/** Represents the overall navigation data structure (like headerData/footerData) */
+/**
+ * Container for header and footer navigation data.
+ *
+ * @category Navigation Models
+ */
 export interface NavigationData {
   links?: NavItem[];
-  actions?: CallToAction[]; // Assuming CallToAction is defined elsewhere for header actions
-  secondaryLinks?: NavItem[]; // For footer
-  socialLinks?: NavItem[]; // For footer
-  footNote?: string; // For footer
-  [key: string]: unknown; // Allow other top-level keys
+  actions?: CallToAction[];
+  secondaryLinks?: NavItem[];
+  socialLinks?: NavItem[];
+  footNote?: string;
+  [key: string]: unknown;
 }
 
-// Ensure CallToAction is defined if not already present
-// export interface CallToAction { text?: string; href?: string; ... }
+/** @internal Navigation helper for team members */
+interface TeamMember {
+  name?: string;
+  job?: string;
+  image?: Image;
+  socials?: Array<Social>;
+  description?: string;
+  classes?: Record<string, string>;
+}
+
+/** @internal Navigation helper for social links */
+interface Social {
+  icon?: string;
+  href?: string;
+}
