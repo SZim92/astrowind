@@ -4,11 +4,27 @@
     "strict": true,
     "strictNullChecks": true,
     "allowJs": true,
+    "checkJs": false,
+    "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"]
-    }
+    },
+    "types": [
+      "vite/client",
+      "astro/client"
+    ]
   },
-  "include": [".astro/types.d.ts", "**/*"],
+  "include": [
+    "src/env.d.ts",
+    ".astro/types.d.ts",
+    "src/**/*.ts",
+    "src/**/*.astro",
+    "src/**/*.js",
+    "*.js",
+    "*.cjs",
+    "*.mjs",
+    "vendor/integration/types.d.ts"
+  ],
   "exclude": ["dist/"]
 }
