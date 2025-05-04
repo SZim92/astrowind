@@ -33,8 +33,8 @@ RUN apk add --no-cache wget
 USER 101
 
 # Copy built assets and (optionally) node_modules
-COPY --from=builder /app/dist   /usr/share/nginx/html
-COPY --from=runtime  /app/node_modules /app/node_modules
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=runtime /app/node_modules /app/node_modules
 
 # Custom Nginx config
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
